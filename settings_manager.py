@@ -14,7 +14,8 @@ class settings_manager(object) :
     
     # Настройки инстанс
     __settings = settings()
-
+    
+    __keys = ['INN', 'check', 'korr_check', 'BIK', 'name_of_product', 'name_of_company']
     
     def __new__(cls):
         if not hasattr(cls, 'instance'):
