@@ -3,82 +3,65 @@ import json
 import uuid
 from settings import settings
 
-
-class settings_manager(object) :
-    # Имя файла настроек
+class settings_maneger(object):
     __file_name = "settings.json"
-    # Уникальный номер
-    __unique_number = None
-    # Словарь с данными
+    __unique_number = 1
     __data = {}
-    
-    # Настройки инстанс
     __settings = settings()
     
     __keys = ['INN', 'check', 'korr_check', 'BIK', 'name_of_product', 'name_of_company']
-    
+
     def __new__(cls):
         if not hasattr(cls, 'instance'):
-            cls.instance = super(settings_manager, cls).__new__(cls)
-        return cls.instance  
-    
-    def convert(self):
-        if len(self.__data) == 0:
-            raise Exception("Невозможно создать объект типа settings.py")
-        
-        fields = dir(self.__settings.__class__)
-        print(fields)
-        
-        field = "first_name"
-        value = self.__data[field]
-        setattr(self.__settings, field, value)
-        
-        print(self.__settings.first_name)        
-    
+            cls.instance = super(settings_maneger, cls).__new__(cls)
+        return cls.instance
+
+
     def __init__(self) -> None:
-        self.__unique_number =  uuid.uuid4()
-    
-    def open(self, file_name: str) -> bool:
+        self.__unique_number = uuid.uuid4()
+
+    @property
+    def unique_number(self) -> str:
+        return str(self.__unique_number.hex)
+
+    def opener(self, file_name: str) -> bool:
         if not isinstance(file_name, str):
-            raise Exception("ERROR: Неверный аргумент!")
-        
+            raise Exception("ERROR: неправильный аргумент!")
+
         if file_name == "":
-            raise Exception("ERROR: Неверный аргумент!")
-        
+            raise Exception("ERROR: Неправильный аргумент!!")
+
         self.__file_name = file_name.strip()
 
         try:
             self.__open()
         except:
             return False
-             
+
         return True
-        
-    
+
     @property
     def data(self) -> {}:
-        """
-            Текущие данные 
-        Returns:
-            _type_: словарь
-        """
         return self.__data
-    
+
+    def convert(self):
+        if len(self.__data) == 0:
+            raise Exception("Проблема с созданием экземпляра класса settings")
+        fields = self.__settings.get_data_keys
+        if len(self.__data) < len(fields):
+            raise Exception("Входных данных меньше ожидаемых, некоторые поля пустые")
+        for field in fields:
+            value = self.__data[field]
+            setattr(self.__settings, field, value)
+
     @property
-    def number(self)-> str:
-        return str(self.__unique_number.hex)
-    
-    
     def __open(self):
-        """
-            Открыть файл с настройками
-        Raises:
-            Exception: Ошибка при открытии файла
-        """
         file_path = os.path.split(__file__)
         settings_file = "%s/%s" % (file_path[0], self.__file_name)
         if not os.path.exists(settings_file):
-            raise Exception("ERROR: Невозможно загрузить настройки! Не найден файл %s", settings_file)
+            raise Exception(
+                "ERROR: Неправильный аргумент",
+                settings_file)
 
         with open(settings_file, "r") as read_file:
-            self.__data = json.load(read_file) 
+            self.__data = json.load(read_file)
